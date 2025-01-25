@@ -1,0 +1,223 @@
+CREATE DATABASE MMORPG_DB;
+USE MMORPG_DB;
+
+CREATE TABLE IF NOT EXISTS guild (
+  guild_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  leader_id int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS rankings (
+  ranking_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id int NOT NULL,
+  score int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS pets (
+  pet_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  type varchar(255) NOT NULL,
+  character_id int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS items (
+  item_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  `type` enum('consumable', 'weapon', 'equipment') NOT NULL,
+  rarity enum('common', 'rare', 'epic', 'legendary') NOT NULL,
+  price int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS maps (
+  map_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  description text NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS servers (
+  server_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  location varchar(255) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS houses (
+  house_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  character_id int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS quests (
+  quest_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  description text NOT NULL,
+  reward_item_id int NOT NULL,
+  reward_xp int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS shop (
+  shop_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  zone_id int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS purchase_history (
+  purchase_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id int NOT NULL,
+  item_id int NOT NULL,
+  purchase_date datetime NOT NULL,
+  quantity int NOT NULL,
+  total_price int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS friends_list (
+  friend_list_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user_id int NOT NULL,
+  friend_user_id int NOT NULL,
+  friendship_status enum('pending', 'accepted', 'blocked') NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS characters (
+  character_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  level int NOT NULL,
+  experience int NOT NULL,
+  race varchar(255) NOT NULL,
+  class varchar(255) NOT NULL,
+  user_id int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS enchantments (
+  enchantment_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  description text NOT NULL,
+  level_required int NOT NULL,
+  effect text NOT NULL,
+  item_id int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS skills (
+  skill_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  description text NOT NULL,
+  required_level int NOT NULL,
+  cooldown int NOT NULL,
+  character_id int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS achievements (
+  achievement_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  description text NOT NULL,
+  points int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS trades (
+  trade_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user1_id int NOT NULL,
+  user2_id int NOT NULL,
+  offered_item_id int NOT NULL,
+  received_item_id int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS stats (
+  stat_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  character_id int NOT NULL,
+  stat_name varchar(255) NOT NULL,
+  value int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS crafting (
+  crafting_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  crafted_item_id int NOT NULL,
+  recipe text NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS enemies (
+  enemy_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  level int NOT NULL,
+  experience_reward int NOT NULL,
+  zone_id int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS skins (
+  skins_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  description text NOT NULL,
+  price int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS npc (
+  npc_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  role varchar(255) NOT NULL,
+  zone_id int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS users (
+  user_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  email varchar(255) NOT NULL,
+  password varchar(255) NOT NULL,
+  registry_date date NOT NULL,
+  role ENUM('admin', 'player') DEFAULT 'player'
+);
+
+CREATE TABLE IF NOT EXISTS relationships (
+  relationship_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  user1_id int NOT NULL,
+  user2_id int NOT NULL,
+  `type` enum('friend', 'enemy') NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS zones (
+  zone_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  map_id int NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS events (
+  event_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name varchar(255) NOT NULL,
+  description text NOT NULL,
+  start_date date NOT NULL,
+  end_date date NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS inventory (
+  inventory_id int NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  character_id int NOT NULL,
+  item_id int NOT NULL,
+  quantity int NOT NULL,
+  obtained_date datetime NOT NULL,
+  FOREIGN KEY (character_id) REFERENCES characters (character_id),
+  FOREIGN KEY (item_id) REFERENCES items (item_id)
+);
+
+ALTER TABLE characters ADD CONSTRAINT characters_userid_fk FOREIGN KEY (user_id) REFERENCES users (user_id);
+ALTER TABLE crafting ADD CONSTRAINT crafting_crafted_item_id_fk FOREIGN KEY (crafted_item_id) REFERENCES items (item_id);
+ALTER TABLE enchantments ADD CONSTRAINT enchantments_item_id_fk FOREIGN KEY (item_id) REFERENCES items (item_id);
+ALTER TABLE enemies ADD CONSTRAINT enemies_zone_id_fk FOREIGN KEY (zone_id) REFERENCES zones (zone_id);
+ALTER TABLE friends_list ADD CONSTRAINT friends_list_friend_user_id_fk FOREIGN KEY (friend_user_id) REFERENCES users (user_id);
+ALTER TABLE friends_list ADD CONSTRAINT friends_list_user_id_fk FOREIGN KEY (user_id) REFERENCES users (user_id);
+ALTER TABLE guild ADD CONSTRAINT guild_leader_id_fk FOREIGN KEY (leader_id) REFERENCES users (user_id);
+ALTER TABLE houses ADD CONSTRAINT houses_character_id_fk FOREIGN KEY (character_id) REFERENCES characters (character_id);
+ALTER TABLE npc ADD CONSTRAINT npc_zone_id_fk FOREIGN KEY (zone_id) REFERENCES zones (zone_id);
+ALTER TABLE pets ADD CONSTRAINT pets_character_id_fk FOREIGN KEY (character_id) REFERENCES characters (character_id);
+ALTER TABLE purchase_history ADD CONSTRAINT purchase_history_item_id_fk FOREIGN KEY (item_id) REFERENCES items (item_id);
+ALTER TABLE purchase_history ADD CONSTRAINT purchase_history_user_id_fk FOREIGN KEY (user_id) REFERENCES users (user_id);
+ALTER TABLE quests ADD CONSTRAINT quests_reward_item_id_fk FOREIGN KEY (reward_item_id) REFERENCES items (item_id);
+ALTER TABLE rankings ADD CONSTRAINT rankings_user_id_fk FOREIGN KEY (user_id) REFERENCES users (user_id);
+ALTER TABLE relationships ADD CONSTRAINT relationships_user1_id_fk FOREIGN KEY (user1_id) REFERENCES users (user_id);
+ALTER TABLE relationships ADD CONSTRAINT relationships_user2_id_fk FOREIGN KEY (user2_id) REFERENCES users (user_id);
+ALTER TABLE shop ADD CONSTRAINT shop_zone_id_fk FOREIGN KEY (zone_id) REFERENCES zones (zone_id);
+ALTER TABLE skills ADD CONSTRAINT skills_character_id_fk FOREIGN KEY (character_id) REFERENCES characters (character_id);
+ALTER TABLE stats ADD CONSTRAINT stats_character_id_fk FOREIGN KEY (character_id) REFERENCES characters (character_id);
+ALTER TABLE trades ADD CONSTRAINT trades_offered_item_id_fk FOREIGN KEY (offered_item_id) REFERENCES items (item_id);
+ALTER TABLE trades ADD CONSTRAINT trades_received_item_id_fk FOREIGN KEY (received_item_id) REFERENCES items (item_id);
+ALTER TABLE trades ADD CONSTRAINT trades_user1_id_fk FOREIGN KEY (user1_id) REFERENCES users (user_id);
+ALTER TABLE trades ADD CONSTRAINT trades_user2_id_fk FOREIGN KEY (user2_id) REFERENCES users (user_id);
+ALTER TABLE zones ADD CONSTRAINT zones_map_id_fk FOREIGN KEY (map_id) REFERENCES maps (map_id);
+
+ALTER TABLE inventory ADD CONSTRAINT inventory_character_id_fk FOREIGN KEY (character_id) REFERENCES characters (character_id);
+ALTER TABLE inventory ADD CONSTRAINT inventory_item_id_fk FOREIGN KEY (item_id) REFERENCES items (item_id);
